@@ -1,5 +1,9 @@
-import RootLayout from "./layout"
+import { useRouter } from 'next/router';
 
 export default function SyntheticV0PageForDeployment() {
-  return <RootLayout />
+  const router = useRouter();
+
+  router.push('/login');
+
+  return null;
 }
