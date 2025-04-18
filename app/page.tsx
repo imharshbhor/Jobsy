@@ -1,9 +1,20 @@
-import { useRouter } from 'next/router';
+"use client"
 
-export default function SyntheticV0PageForDeployment() {
-  const router = useRouter();
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 
-  router.push('/login');
+export default function Home() {
+  const router = useRouter()
+//   const { user } = useUserStore()
 
-  return null;
+  useEffect(() => {
+    // if (user) {
+    //   router.push("/dashboard")
+    // } else {
+    //   router.push("/login")
+    // }
+    router.push("/login")
+  }, [router])
+
+  return null; // Return null while redirecting
 }
