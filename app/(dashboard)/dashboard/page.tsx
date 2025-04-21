@@ -1,12 +1,31 @@
+"use client"
+
+import { useEffect, useState } from 'react'
 import { getApplicationStats, fetchApplications } from "@/lib/data"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Briefcase, CheckCircle, XCircle, Users } from "lucide-react"
 import { RecentApplications } from "./components/recent-applications"
 import { ApplicationsChart } from "./components/applications-chart"
 
-export default async function DashboardPage() {
-  const stats = await getApplicationStats()
-  const applications = await fetchApplications()
+export default function DashboardPage() {
+  const [stats, setStats] = useState(null)
+  const [applications, setApplications] = useState(null)
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      const fetchedStats = await getApplicationStats()
+      const fetchedApplications = await fetchApplications()
+      setStats(fetchedStats)
+      setApplications(fetchedApplications)
+    }
+
+    fetchDashboardData()
+  }, [])
+
+  if (!stats || !applications) {
+    return <div>Loading...</div>
+  }
+
   const recentApplications = applications.slice(0, 5)
 
   return (
