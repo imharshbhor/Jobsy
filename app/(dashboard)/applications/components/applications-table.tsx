@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { format } from "date-fns"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import { ChevronDown, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -17,36 +17,80 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
-import type { JobApplication } from "@/lib/data"
+import type { Application } from "@/types/application"
+import EditApplicationDialog from "./edit-application-dialog"
+import { deleteApplication } from "@/services/application-service"
 
 interface ApplicationsTableProps {
-  applications: JobApplication[]
+  applications: Application[]
+  onClose: () => void
 }
 
-export function ApplicationsTable({ applications }: ApplicationsTableProps) {
-  const [companyFilter, setCompanyFilter] = useState("")
+export function ApplicationsTable({ applications, onClose }: ApplicationsTableProps) {
+  const [companyFilter, setcompanyFilter] = useState("")
   const [statusFilter, setStatusFilter] = useState<string[]>([])
-  const [sortBy, setSortBy] = useState<"company" | "date_applied" | "salary_lpa" | null>(null)
-  const [sortAsc, setSortAsc] = useState(true)
+  const [sortBy, setSortBy] = useState<"company" | "dateApplied" | "salary" | null>("dateApplied")
+  const [sortAsc, setSortAsc] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const { toast } = useToast()
+  const [currentPage, setCurrentPage] = useState(0)
+  const itemsPerPage = 4
 
-  const handleDelete = (id: string) => {
-    toast({
-      title: "Application deleted",
-      description: "The job application has been deleted successfully.",
-    })
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteApplication(id)
+
+      toast({
+        title: "Application deleted",
+        description: "The job application has been deleted successfully.",
+        variant: "default",
+      })
+
+      onClose();
+    } catch (error) {
+      console.error("Failed to delete application:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete the application.",
+        variant: "destructive",
+      })
+    }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Applied":
-        return "bg-blue-500"
+      case "Wait for reply":
+        return "bg-yellow-500"
+      case "No reply":
+        return "bg-gray-500"
       case "Interviewing":
         return "bg-purple-500"
-      case "Offer":
+      case "Got the Job!":
         return "bg-green-500"
+      case "Maybe later":
+        return "bg-blue-500"
       case "Rejected":
         return "bg-red-500"
+      case "Rejected myself":
+        return "bg-red-500"
+      case "No answer":
+        return "bg-gray-500"
+      case "Negotiating":
+        return "bg-orange-500"
+      default:
+        return "bg-gray-500"
+    }
+  }
+
+  const getLocationTypeColor = (locationType: string) => {
+    switch (locationType) {
+      case "Remote":
+        return "bg-blue-500"
+      case "On-site":
+        return "bg-green-500"
+      case "Hybrid":
+        return "bg-purple-500"
       default:
         return "bg-gray-500"
     }
@@ -67,8 +111,8 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
 
     if (sortBy) {
       data.sort((a, b) => {
-        const aValue = a[sortBy]
-        const bValue = b[sortBy]
+        const aValue = a[sortBy] || ""
+        const bValue = b[sortBy] || ""
         if (aValue < bValue) return sortAsc ? -1 : 1
         if (aValue > bValue) return sortAsc ? 1 : -1
         return 0
@@ -87,13 +131,19 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
     }
   }
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+  }
+
+  const currentItems = filtered.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Input
           placeholder="Filter by company..."
           value={companyFilter}
-          onChange={(e) => setCompanyFilter(e.target.value)}
+          onChange={(e) => setcompanyFilter(e.target.value)}
           className="max-w-sm"
         />
 
@@ -104,8 +154,8 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
                 Status <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {["Applied", "Interviewing", "Offer", "Rejected"].map((status) => (
+            <DropdownMenuContent align="center">
+              {["Wait for reply", "Interviewing", "Offer", "Rejected"].map((status) => (
                 <DropdownMenuCheckboxItem
                   key={status}
                   checked={statusFilter.includes(status)}
@@ -129,47 +179,42 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>
-                <Button variant="ghost" onClick={() => toggleSort("company")} className="p-0">
-                  Company <ArrowUpDown className="ml-1 h-4 w-4" />
-                </Button>
-              </TableHead>
-              <TableHead>Job Title</TableHead>
-              <TableHead>Applied Through</TableHead>
+              <TableHead>Job Details</TableHead>
+              <TableHead>Requirements</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead className="w-32">Salary (LPA)</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => toggleSort("date_applied")} className="p-0">
-                  Date Applied <ArrowUpDown className="ml-1 h-4 w-4" />
-                </Button>
-              </TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="w-32">Date Applied</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => toggleSort("salary_lpa")} className="p-0">
-                  Salary (LPA) <ArrowUpDown className="ml-1 h-4 w-4" />
-                </Button>
-              </TableHead>
+              <TableHead>Latest Reply</TableHead>
+              <TableHead className="w-36">Interview Date</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length > 0 ? (
-              filtered.map((app) => (
+            {currentItems.length > 0 ? (
+              currentItems.map((app) => (
                 <TableRow key={app.id}>
-                  <TableCell className="font-medium">{app.company}</TableCell>
-                  <TableCell title={app.job_title} className="max-w-[200px] truncate">
-                    {app.job_title}
-                  </TableCell>
-                  <TableCell>{app.applied_through}</TableCell>
+                  <TableCell className="font-medium flex flex-col gap-2"><a className="text-lg" href={app.url} target="_blank">{app.company}</a><span>{app.jobTitle}</span></TableCell>
+                  <TableCell>{app.requirements}</TableCell>
+                  <TableCell>{app.appliedThrough}</TableCell>
+                  <TableCell className="text-center">{app.salary}</TableCell>
                   <TableCell>{app.location}</TableCell>
-                  <TableCell>{format(new Date(app.date_applied), "MMM d, yyyy")}</TableCell>
                   <TableCell>
-                    <Badge className={`${getStatusColor(app.status)} text-white`}>
-                      {app.status}
+                    <Badge className={`${getLocationTypeColor(app.locationType)} text-background`}>
+                      {app.locationType}
                     </Badge>
                   </TableCell>
+                  <TableCell>{format(new Date(app.dateApplied), "MMM d, yyyy")}</TableCell>
                   <TableCell>
-                    {app.salary_lpa ? `₹${app.salary_lpa} LPA` : "-"}
+                    {app.status ?
+                    <Badge className={`${getStatusColor(app.status)} text-background text-center`}>
+                      {app.status}
+                    </Badge> : ""}
                   </TableCell>
+                  <TableCell>{app.latestReply}</TableCell>
+                  <TableCell>{app.interviewDate ? format(new Date(app.interviewDate), "MMM d, yyyy") : ""}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -183,7 +228,9 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
                           View Job Posting
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Edit Application</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setSelectedId(app.id); setIsEditOpen(true); }}>
+                          Edit Application
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleDelete(app.id)}
                           className="text-red-600"
@@ -197,13 +244,24 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-10">
-                  No applications found.
+                <TableCell colSpan={12} className="text-center text-muted-foreground py-10">
+                  No applications yet.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {isEditOpen && <EditApplicationDialog selectedId={selectedId} isEditOpen={isEditOpen} onClose={() => { setIsEditOpen(false); setSelectedId(null); onClose(); }} />}
+      <div className="flex justify-between items-center mt-4">
+        <Button variant="outline" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>
+          Prev
+        </Button>
+        <span className="text-sm">Page {currentPage + 1}</span>
+        <Button variant="outline" onClick={() => handlePageChange(currentPage + 1)} disabled={currentItems.length < itemsPerPage}>
+          Next
+        </Button>
       </div>
     </div>
   )

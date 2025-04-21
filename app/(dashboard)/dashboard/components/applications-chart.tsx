@@ -13,9 +13,9 @@ import { useState } from "react"
 interface ApplicationsChartProps {
   stats: {
     total: number
-    applied: number
+    wait_for_reply: number
     interviewing: number
-    offer: number
+    got_the_job: number
     rejected: number
   }
 }
@@ -24,9 +24,9 @@ export function ApplicationsChart({ stats }: ApplicationsChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
   const data = [
-    { name: "Applied", value: stats.applied, color: "#3b82f6" },
+    { name: "Waiting for reply", value: stats.wait_for_reply, color: "#f3a261" },
     { name: "Interviewing", value: stats.interviewing, color: "#8b5cf6" },
-    { name: "Offer", value: stats.offer, color: "#10b981" },
+    { name: "Offer", value: stats.got_the_job, color: "#10b981" },
     { name: "Rejected", value: stats.rejected, color: "#ef4444" },
   ].filter((item) => item.value > 0)
 
@@ -43,35 +43,39 @@ export function ApplicationsChart({ stats }: ApplicationsChartProps) {
       </CardHeader>
       <CardContent className="pl-2">
         <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="45%"
-                outerRadius={90}
-                innerRadius={50}
-                dataKey="value"
-                nameKey="name"
-                onMouseEnter={onPieEnter}
-                onMouseLeave={onPieLeave}
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
-                }
-              >
-                {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.color}
-                  />
-                ))}
-              </Pie>
-              <RechartsTooltip
-                formatter={(value: any, name: any) => [`${value}`, `${name}`]}
-                contentStyle={{ backgroundColor: "#fff", borderRadius: "6px", border: "1px solid #e5e7eb" }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          {data.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  cx="50%"
+                  cy="45%"
+                  outerRadius={90}
+                  innerRadius={50}
+                  dataKey="value"
+                  nameKey="name"
+                  onMouseEnter={onPieEnter}
+                  onMouseLeave={onPieLeave}
+                  label={({ name, percent }) =>
+                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  }
+                >
+                  {data.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                    />
+                  ))}
+                </Pie>
+                <RechartsTooltip
+                  formatter={(value: any, name: any) => [`${value}`, `${name}`]}
+                  contentStyle={{ backgroundColor: "#fff", borderRadius: "6px", border: "1px solid #e5e7eb" }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="flex items-center justify-center h-[300px] text-muted-foreground">No applications yet.</p>
+          )}
         </div>
 
         {/* Legend */}

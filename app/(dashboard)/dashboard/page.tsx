@@ -1,12 +1,13 @@
-import { getApplicationStats, jobApplications } from "@/lib/data"
+import { getApplicationStats, fetchApplications } from "@/lib/data"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Briefcase, CheckCircle, XCircle, Users } from "lucide-react"
 import { RecentApplications } from "./components/recent-applications"
 import { ApplicationsChart } from "./components/applications-chart"
 
-export default function DashboardPage() {
-  const stats = getApplicationStats()
-  const recentApplications = jobApplications.slice(0, 5)
+export default async function DashboardPage() {
+  const stats = await getApplicationStats()
+  const applications = await fetchApplications()
+  const recentApplications = applications.slice(0, 5)
 
   return (
     <div className="flex flex-col gap-4">
@@ -39,7 +40,7 @@ export default function DashboardPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.offer}</div>
+            <div className="text-2xl font-bold">{stats.got_the_job}</div>
           </CardContent>
         </Card>
         <Card className="bg-[#ef4444]/20">
