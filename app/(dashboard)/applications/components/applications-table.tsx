@@ -29,7 +29,7 @@ interface ApplicationsTableProps {
 export function ApplicationsTable({ applications, onClose }: ApplicationsTableProps) {
   const [companyFilter, setcompanyFilter] = useState("")
   const [statusFilter, setStatusFilter] = useState<string[]>([])
-  const [sortBy, setSortBy] = useState<"company" | "dateApplied" | "salary" | null>("dateApplied")
+  const [sortBy, setSortBy] = useState<"company" | "dateApplied" | "salary" | null>(null)
   const [sortAsc, setSortAsc] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -182,11 +182,11 @@ export function ApplicationsTable({ applications, onClose }: ApplicationsTablePr
               <TableHead>Job Details</TableHead>
               <TableHead>Requirements</TableHead>
               <TableHead>Source</TableHead>
-              <TableHead className="w-32">Salary (LPA)</TableHead>
+              <TableHead className="w-32 text-center">Salary (LPA)</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="w-32">Date Applied</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="w-32 pl-10">Status</TableHead>
               <TableHead>Latest Reply</TableHead>
               <TableHead className="w-36">Interview Date</TableHead>
               <TableHead>Actions</TableHead>
@@ -207,7 +207,7 @@ export function ApplicationsTable({ applications, onClose }: ApplicationsTablePr
                     </Badge>
                   </TableCell>
                   <TableCell>{format(new Date(app.dateApplied), "MMM d, yyyy")}</TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     {app.status ?
                     <Badge className={`${getStatusColor(app.status)} text-background text-center`}>
                       {app.status}
@@ -215,7 +215,7 @@ export function ApplicationsTable({ applications, onClose }: ApplicationsTablePr
                   </TableCell>
                   <TableCell>{app.latestReply}</TableCell>
                   <TableCell>{app.interviewDate ? format(new Date(app.interviewDate), "MMM d, yyyy") : ""}</TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -255,13 +255,15 @@ export function ApplicationsTable({ applications, onClose }: ApplicationsTablePr
 
       {isEditOpen && <EditApplicationDialog selectedId={selectedId} isEditOpen={isEditOpen} onClose={() => { setIsEditOpen(false); setSelectedId(null); onClose(); }} />}
       <div className="flex justify-between items-center mt-4">
+        <span className="text-sm pl-2">Page {currentPage + 1}</span>
+        <div className="flex items-center gap-2">
         <Button variant="outline" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0}>
           Prev
         </Button>
-        <span className="text-sm">Page {currentPage + 1}</span>
         <Button variant="outline" onClick={() => handlePageChange(currentPage + 1)} disabled={currentItems.length < itemsPerPage}>
           Next
         </Button>
+        </div>
       </div>
     </div>
   )

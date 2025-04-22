@@ -23,7 +23,7 @@ export default function DashboardPage() {
   }, [])
 
   if (!stats || !applications) {
-    return <div>Loading...</div>
+    return <div className='flex justify-center items-center h-[80vh]'>Loading...</div>
   }
 
   const recentApplications = applications.slice(0, 5)

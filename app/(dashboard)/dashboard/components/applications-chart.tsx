@@ -56,8 +56,8 @@ export function ApplicationsChart({ stats }: ApplicationsChartProps) {
                   nameKey="name"
                   onMouseEnter={onPieEnter}
                   onMouseLeave={onPieLeave}
-                  label={({ name, percent }) =>
-                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  label={({ name, value }) =>
+                    `${name}: ${value}`
                   }
                 >
                   {data.map((entry, index) => (

@@ -1,18 +1,5 @@
-export type JobApplication = {
-  id: string
-  Company: string
-  URL: string | null
-  JobTitle: string
-  Requirements: string | null
-  AppliedThrough: string
-  Salary: number | null
-  Location: string
-  DateApplied: string
-  status: string
-  LatestReply: string | null
-  InterviewDate: string | null
-  Feedback: string | null
-}
+import { getApplications } from '@/services/application-service'
+import { getUser } from '@/services/user-service'
 
 export type Resume = {
   id: string
@@ -20,17 +7,15 @@ export type Resume = {
   upload_date: string
 }
 
-export const jobApplications: JobApplication[] = []
-
-import { getApplications } from '@/services/application-service'
-
 export const fetchApplications = async () => {
-  const applications = await getApplications()
+  const user = await getUser()
+  const applications = await getApplications(user?.id || "")
   return applications
 }
 
 export const getApplicationStats = async () => {
-  const applications = await fetchApplications()
+  const user = await getUser()
+  const applications = await getApplications(user?.id || "")
   const stats = {
     total: applications.length,
     interviewing: applications.filter((app) => app.status === "Interviewing").length,
