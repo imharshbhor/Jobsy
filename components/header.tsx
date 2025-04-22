@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Briefcase, FileText, Menu, User, Code, LogOut } from "lucide-react"
+import { LayoutDashboard, Briefcase, FileText, Menu, User, Code, LogOut, MessageCircle } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -43,6 +43,12 @@ export function Header() {
             icon: Briefcase,
             href: "/applications",
             active: pathname === "/applications",
+        },
+        {
+            label: "ChatBot",
+            icon: MessageCircle,
+            href: "/chat",
+            active: pathname === "/chat",
         },
         // {
         //     label: "Resume",
