@@ -2,12 +2,10 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { supabase } from "@/lib/supabase"
 
 export default function HomePage() {
   const router = useRouter()
-
-  const supabase = createServerSupabaseClient()
 
   useEffect(() => {
     const checkAuth = async () => {
