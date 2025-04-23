@@ -8,8 +8,8 @@ import { RecentApplications } from "./components/recent-applications"
 import { ApplicationsChart } from "./components/applications-chart"
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState(null)
-  const [applications, setApplications] = useState(null)
+  const [stats, setStats] = useState({})
+  const [applications, setApplications] = useState([])
 
   useEffect(() => {
     const fetchDashboardData = async () => {

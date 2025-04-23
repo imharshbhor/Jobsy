@@ -7,6 +7,7 @@ import { ApplicationsTable } from "./components/applications-table"
 import { useState, useEffect } from "react"
 import AddApplicationDialog from "./components/add-application-dialog copy"
 import ImportDataDialog from "./components/import-data-dialog"
+import { Application } from "@/types/application"
 
 export default function ApplicationsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false)
@@ -18,7 +19,7 @@ export default function ApplicationsPage() {
   }, [])
 
   const fetchAppData = async () => {
-    const data = await fetchApplications()
+    const data: Application[] = await fetchApplications()
     setApplications(data)
   }
 
