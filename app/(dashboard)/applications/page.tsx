@@ -24,7 +24,7 @@ export default function ApplicationsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 p-4 md:p-6 lg:p-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Applications</h1>
