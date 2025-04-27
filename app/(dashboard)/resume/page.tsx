@@ -1,4 +1,4 @@
-import { resume } from "@/lib/data"
+// import { resume } from "@/lib/data"
 import { ResumeUploader } from "./components/resume-uploader"
 import { ResumeViewer } from "./components/resume-viewer"
 
@@ -11,8 +11,8 @@ export default function ResumePage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <ResumeUploader currentResume={resume} />
-        <ResumeViewer resume={resume} />
+        {/* <ResumeUploader currentResume={resume} />
+        <ResumeViewer resume={resume} /> */}
       </div>
     </div>
   )

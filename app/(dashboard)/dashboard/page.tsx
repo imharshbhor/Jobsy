@@ -6,10 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Briefcase, CheckCircle, XCircle, Users } from "lucide-react"
 import { RecentApplications } from "./components/recent-applications"
 import { ApplicationsChart } from "./components/applications-chart"
+import { Application } from '@/types/application'
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({})
-  const [applications, setApplications] = useState([])
+  const [applications, setApplications] = useState<Application[]>([])
 
   useEffect(() => {
     const fetchDashboardData = async () => {
